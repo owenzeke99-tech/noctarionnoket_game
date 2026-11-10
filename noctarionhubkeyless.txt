@@ -1,0 +1,323 @@
+-- Noctarion Hub - Sleek Dark Glassmorphic Key System with Advanced Toast System
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+local HttpService = game:GetService("HttpService")
+
+-- Local Key Caching (Hidden 24 hours)
+local KEY_CACHE_NAME = "NoctarionHub_KeyCache_v6.json"
+local function getSavedKey()
+    if writefile and readfile and isfile then
+        if isfile(KEY_CACHE_NAME) then
+            local success, data = pcall(function()
+                return HttpService:JSONDecode(readfile(KEY_CACHE_NAME))
+            end)
+            if success and data and data.key and data.time then
+                if os.time() - data.time < 86400 then
+                    return data.key
+                end
+            end
+        end
+    end
+    return nil
+end
+
+local function saveKey(key)
+    if writefile then
+        pcall(function()
+            local data = HttpService:JSONEncode({key = key, time = os.time()})
+            writefile(KEY_CACHE_NAME, data)
+        end)
+    end
+end
+
+-- Key Configuration
+local CORRECT_KEY = "NoctarionHubkeyLajowow - Kapwowjwnoaoej"
+local GET_KEY_URL = "https://link4m.net/sgQC5iER"
+
+-- Check direct load if cached
+if getSavedKey() == CORRECT_KEY then
+    loadstring(game:HttpGet("https://nhmain.vercel.app/Loader/Main.lua"))()
+    return
+end
+
+-- ScreenGui Setup
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "NoctarionGlassKeySystem"
+ScreenGui.Parent = CoreGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- Main Container Frame (Transparent Black Theme)
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
+MainFrame.BackgroundTransparency = 0.12 -- Glass transparency effect
+MainFrame.BorderSizePixel = 0
+MainFrame.Position = UDim2.new(0.5, -190, 0.5, -140)
+MainFrame.Size = UDim2.new(0, 380, 0, 280)
+MainFrame.ClipsDescendants = true
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 16)
+UICorner.Parent = MainFrame
+
+-- Sleek Dark Border Stroke
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Color = Color3.fromRGB(45, 45, 58)
+UIStroke.Thickness = 1.5
+UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+UIStroke.Parent = MainFrame
+
+-- ==================== MODERN FLOATING TOAST NOTIFICATION ====================
+local ToastFrame = Instance.new("Frame")
+ToastFrame.Name = "ToastFrame"
+ToastFrame.Parent = MainFrame
+ToastFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
+ToastFrame.BackgroundTransparency = 0.1
+ToastFrame.Position = UDim2.new(0.5, -165, 0, -55) -- Hidden above menu center
+ToastFrame.Size = UDim2.new(0, 330, 0, 42)
+ToastFrame.ZIndex = 10
+
+local ToastCorner = Instance.new("UICorner")
+ToastCorner.CornerRadius = UDim.new(0, 10)
+ToastCorner.Parent = ToastFrame
+
+local ToastStroke = Instance.new("UIStroke")
+ToastStroke.Color = Color3.fromRGB(239, 68, 68) -- Default error red border
+ToastStroke.Thickness = 1.2
+ToastStroke.Parent = ToastFrame
+
+local ToastIcon = Instance.new("TextLabel")
+ToastIcon.Name = "ToastIcon"
+ToastIcon.Parent = ToastFrame
+ToastIcon.BackgroundTransparency = 1
+ToastIcon.Position = UDim2.new(0, 12, 0, 0)
+ToastIcon.Size = UDim2.new(0, 24, 1, 0)
+ToastIcon.Font = Enum.Font.GothamBold
+ToastIcon.Text = "✕"
+ToastIcon.TextColor3 = Color3.fromRGB(239, 68, 68)
+ToastIcon.TextSize = 14
+ToastIcon.ZIndex = 11
+
+local ToastText = Instance.new("TextLabel")
+ToastText.Name = "ToastText"
+ToastText.Parent = ToastFrame
+ToastText.BackgroundTransparency = 1
+ToastText.Position = UDim2.new(0, 42, 0, 0)
+ToastText.Size = UDim2.new(1, -50, 1, 0)
+ToastText.Font = Enum.Font.GothamBold
+ToastText.Text = "Invalid key! Please try again."
+ToastText.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToastText.TextSize = 12
+ToastText.TextXAlignment = Enum.TextXAlignment.Left
+ToastText.ZIndex = 11
+
+-- Function to trigger Modern Animated Toast
+local function showToast(message, isSuccess)
+    task.spawn(function()
+        -- Configure style based on type
+        if isSuccess then
+            ToastStroke.Color = Color3.fromRGB(34, 197, 94)
+            ToastIcon.Text = "✓"
+            ToastIcon.TextColor3 = Color3.fromRGB(34, 197, 94)
+        else
+            ToastStroke.Color = Color3.fromRGB(239, 68, 68)
+            ToastIcon.Text = "✕"
+            ToastIcon.TextColor3 = Color3.fromRGB(239, 68, 68)
+        end
+        ToastText.Text = message
+
+        -- Slide down smoothly inside menu
+        local slideDown = TweenService:Create(ToastFrame, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -165, 0, 12)})
+        slideDown:Play()
+        slideDown.Completed:Wait()
+        
+        task.wait(2.0)
+        
+        -- Slide back up
+        local slideUp = TweenService:Create(ToastFrame, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {Position = UDim2.new(0.5, -165, 0, -55)})
+        slideUp:Play()
+    end)
+end
+-- ============================================================================
+
+-- Title Header
+local Title = Instance.new("TextLabel")
+Title.Name = "Title"
+Title.Parent = MainFrame
+Title.BackgroundTransparency = 1
+Title.Position = UDim2.new(0, 0, 0, 22)
+Title.Size = UDim2.new(1, 0, 0, 28)
+Title.Font = Enum.Font.GothamBold
+Title.Text = "NOCTARION HUB"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 20
+Title.TextXAlignment = Enum.TextXAlignment.Center
+
+-- Subtitle (English Instruction)
+local Subtitle = Instance.new("TextLabel")
+Subtitle.Name = "Subtitle"
+Subtitle.Parent = MainFrame
+Subtitle.BackgroundTransparency = 1
+Subtitle.Position = UDim2.new(0, 0, 0, 50)
+Subtitle.Size = UDim2.new(1, 0, 0, 18)
+Subtitle.Font = Enum.Font.GothamMedium
+Subtitle.Text = "Please enter your correct key below"
+Subtitle.TextColor3 = Color3.fromRGB(140, 140, 160)
+Subtitle.TextSize = 12
+Subtitle.TextXAlignment = Enum.TextXAlignment.Center
+
+-- Input Holder Frame (Transparent Dark)
+local InputHolder = Instance.new("Frame")
+InputHolder.Name = "InputHolder"
+InputHolder.Parent = MainFrame
+InputHolder.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+InputHolder.BackgroundTransparency = 0.3
+InputHolder.Position = UDim2.new(0, 25, 0, 95)
+InputHolder.Size = UDim2.new(0, 330, 0, 48)
+
+local InputCorner = Instance.new("UICorner")
+InputCorner.CornerRadius = UDim.new(0, 10)
+InputCorner.Parent = InputHolder
+
+local InputStroke = Instance.new("UIStroke")
+InputStroke.Color = Color3.fromRGB(55, 55, 70)
+InputStroke.Thickness = 1.2
+InputStroke.Parent = InputHolder
+
+-- Key TextBox
+local TextBox = Instance.new("TextBox")
+TextBox.Name = "KeyInput"
+TextBox.Parent = InputHolder
+TextBox.BackgroundTransparency = 1
+TextBox.Position = UDim2.new(0, 15, 0, 0)
+TextBox.Size = UDim2.new(1, -30, 1, 0)
+TextBox.ClearTextOnFocus = false
+TextBox.Font = Enum.Font.Gotham
+TextBox.PlaceholderText = "Paste access key here..."
+TextBox.PlaceholderColor3 = Color3.fromRGB(90, 90, 110)
+TextBox.Text = ""
+TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextBox.TextSize = 13
+TextBox.TextXAlignment = Enum.TextXAlignment.Center
+
+-- Focus Highlight Effect
+TextBox.Focused:Connect(function()
+    TweenService:Create(InputStroke, TweenInfo.new(0.25), {Color = Color3.fromRGB(120, 120, 160)}):Play()
+end)
+
+TextBox.FocusLost:Connect(function()
+    TweenService:Create(InputStroke, TweenInfo.new(0.25), {Color = Color3.fromRGB(55, 55, 70)}):Play()
+end)
+
+-- Status / Info Notification Label inside Menu
+local StatusLabel = Instance.new("TextLabel")
+StatusLabel.Name = "StatusLabel"
+StatusLabel.Parent = MainFrame
+StatusLabel.BackgroundTransparency = 1
+StatusLabel.Position = UDim2.new(0, 25, 0, 155)
+StatusLabel.Size = UDim2.new(0, 330, 0, 20)
+StatusLabel.Font = Enum.Font.GothamMedium
+StatusLabel.Text = "System ready for verification"
+StatusLabel.TextColor3 = Color3.fromRGB(140, 140, 160)
+StatusLabel.TextSize = 12
+StatusLabel.TextXAlignment = Enum.TextXAlignment.Center
+
+-- Button Helper Function
+local function createButton(name, text, position, bgColor, textColor)
+    local btn = Instance.new("TextButton")
+    btn.Name = name
+    btn.Parent = MainFrame
+    btn.BackgroundColor3 = bgColor
+    btn.BackgroundTransparency = 0.2
+    btn.Position = position
+    btn.Size = UDim2.new(0, 158, 0, 42)
+    btn.Font = Enum.Font.GothamBold
+    btn.Text = text
+    btn.TextColor3 = textColor
+    btn.TextSize = 13
+    btn.AutoButtonColor = false
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 10)
+    corner.Parent = btn
+
+    -- Smooth Hover Animation
+    btn.MouseEnter:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundTransparency = 0, Size = UDim2.new(0, 160, 0, 44), Position = position + UDim2.new(0, -1, 0, -1)}):Play()
+    end)
+    btn.MouseLeave:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundTransparency = 0.2, Size = UDim2.new(0, 158, 0, 42), Position = position}):Play()
+    end)
+
+    return btn
+end
+
+local SubmitBtn = createButton("SubmitBtn", "CHECK KEY", UDim2.new(0, 25, 0, 195), Color3.fromRGB(35, 35, 45), Color3.fromRGB(255, 255, 255))
+local GetKeyBtn = createButton("GetKeyBtn", "GET KEY", UDim2.new(0, 197, 0, 195), Color3.fromRGB(20, 20, 26), Color3.fromRGB(180, 180, 200))
+
+-- Smooth Shake Animation for Invalid Key
+local function smoothShakeUI()
+    local origin = MainFrame.Position
+    local offsets = {12, -10, 8, -6, 4, -2, 0}
+    
+    task.spawn(function()
+        for _, offset in ipairs(offsets) do
+            local tween = TweenService:Create(
+                MainFrame, 
+                TweenInfo.new(0.045, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), 
+                {Position = origin + UDim2.new(0, offset, 0, 0)}
+            )
+            tween:Play()
+            tween.Completed:Wait()
+        end
+        MainFrame.Position = origin
+    end)
+end
+
+-- Event Actions
+SubmitBtn.MouseButton1Click:Connect(function()
+    if TextBox.Text == CORRECT_KEY then
+        TweenService:Create(UIStroke, TweenInfo.new(0.3), {Color = Color3.fromRGB(34, 197, 94)}):Play()
+        StatusLabel.TextColor3 = Color3.fromRGB(34, 197, 94)
+        StatusLabel.Text = "Key Verified! Loading..."
+        saveKey(CORRECT_KEY)
+        
+        task.wait(0.6)
+        TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
+        task.wait(0.3)
+        ScreenGui:Destroy()
+        
+        loadstring(game:HttpGet("https://nhmain.vercel.app/Loader/Main.lua"))()
+    else
+        TweenService:Create(UIStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(239, 68, 68)}):Play()
+        StatusLabel.TextColor3 = Color3.fromRGB(239, 68, 68)
+        StatusLabel.Text = "Verification failed!"
+        
+        showToast("Invalid key! Please check and try again.", false)
+        smoothShakeUI()
+        TextBox.Text = "" -- Automatically clear input field
+        
+        task.wait(2.0)
+        TweenService:Create(UIStroke, TweenInfo.new(0.4), {Color = Color3.fromRGB(45, 45, 58)}):Play()
+        StatusLabel.TextColor3 = Color3.fromRGB(140, 140, 160)
+        StatusLabel.Text = "System ready for verification"
+    end
+end)
+
+GetKeyBtn.MouseButton1Click:Connect(function()
+    setclipboard(GET_KEY_URL)
+    StatusLabel.TextColor3 = Color3.fromRGB(160, 160, 200)
+    StatusLabel.Text = "Get Key link copied to clipboard!"
+    
+    showToast("Get Key link copied to clipboard!", true)
+    
+    pcall(function()
+        if syn and syn.request then
+            syn.request({Url = "http://127.0.0.1:6463/rpc?v=1", Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = HttpService:JSONEncode({cmd = "BROWSER_OPEN", args = {url = GET_KEY_URL}, nonce = ""})})
+        elseif request then
+            request({Url = GET_KEY_URL, Method = "GET"})
+        end
+    end)
+end)
